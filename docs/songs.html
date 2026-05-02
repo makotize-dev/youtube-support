@@ -22,6 +22,7 @@
     .summary { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
     .summary-item { background: #fff; border-radius: 8px; padding: 10px 16px; font-size: 0.85rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
     .summary-item span { font-weight: bold; font-size: 1.1rem; display: block; color: #e05a5a; }
+    .note-box { background: #fff8e1; border-left: 3px solid #ffc107; padding: 10px 16px; border-radius: 4px; font-size: 0.85rem; margin-bottom: 20px; color: #555; }
     table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.08); font-size: 0.85rem; }
     th { background: #444; color: #fff; padding: 10px 12px; text-align: left; font-weight: normal; white-space: nowrap; }
     td { padding: 9px 12px; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
@@ -36,43 +37,58 @@
       font-size: 0.78rem;
       white-space: nowrap;
     }
-    .badge-done    { background: #e8f5e9; color: #388e3c; }
-    .badge-wip     { background: #fff3e0; color: #e65100; }
-    .badge-planned { background: #e3f2fd; color: #1565c0; }
-    .badge-ok      { background: #e8f5e9; color: #388e3c; }
-    .badge-ng      { background: #fce4ec; color: #c62828; }
-    .badge-unknown { background: #f5f5f5; color: #999; }
-    .badge-checked { background: #e8f5e9; color: #388e3c; }
-    .no { color: #aaa; font-size: 0.8rem; }
+    .badge-confirmed  { background: #e8f5e9; color: #2e7d32; }
+    .badge-estimated  { background: #e3f2fd; color: #1565c0; }
+    .badge-check      { background: #fce4ec; color: #b71c1c; }
+    .badge-ok         { background: #e8f5e9; color: #2e7d32; }
+    .badge-ok-est     { background: #e3f2fd; color: #1565c0; }
+    .badge-ng         { background: #fce4ec; color: #b71c1c; }
+    .badge-unknown    { background: #f5f5f5; color: #999; }
+    .badge-done       { background: #e8f5e9; color: #388e3c; }
     .mv-tag { font-size: 0.75rem; background: #ede7f6; color: #6a1b9a; border-radius: 4px; padding: 1px 5px; margin-left: 4px; }
+    .no { color: #aaa; font-size: 0.8rem; }
+    .legend { display: flex; gap: 12px; flex-wrap: wrap; font-size: 0.8rem; margin-bottom: 16px; }
+    .legend-item { display: flex; align-items: center; gap: 4px; }
   </style>
 </head>
 <body>
 
 <div class="nav"><a href="index.html">← ダッシュボードへ戻る</a></div>
 <h1>🎵 楽曲一覧</h1>
-<p class="updated">最終更新：2026年5月2日</p>
+<p class="updated">最終更新：2026年5月2日（著作権調査 初回実施）</p>
+
+<div class="note-box">
+  ⚠️ <strong>ニコニコ投稿について：</strong>ニコニコはJASRAC・NexTone両方と包括契約済みのため、どちらかで管理されている楽曲は追加申請なしで投稿OK。「要確認」の曲のみ直接データベースで確認が必要。
+</div>
 
 <div class="summary">
   <div class="summary-item"><span id="total-count">-</span>曲（投稿済み）</div>
-  <div class="summary-item"><span id="inst-done">-</span>インスト 入手済み</div>
-  <div class="summary-item"><span id="copy-done">-</span>著作権 確認済み</div>
+  <div class="summary-item"><span id="copy-confirmed">-</span>著作権 確認済み</div>
+  <div class="summary-item"><span id="copy-estimated">-</span>著作権 推定OK</div>
+  <div class="summary-item"><span id="copy-check">-</span>著作権 要確認</div>
+</div>
+
+<div class="legend">
+  <span>凡例：</span>
+  <div class="legend-item"><span class="badge badge-confirmed">JASRAC / NexTone</span> 確認済み</div>
+  <div class="legend-item"><span class="badge badge-estimated">JASRAC（推定）</span> 大手レーベル所属・高確度</div>
+  <div class="legend-item"><span class="badge badge-check">要確認</span> データベースで直接確認が必要</div>
 </div>
 
 <div class="filter-bar">
-  <label>ステータス：</label>
-  <select id="filter-status" onchange="renderTable()">
+  <label>著作権：</label>
+  <select id="filter-copy" onchange="renderTable()">
     <option value="">すべて</option>
-    <option value="投稿済み">投稿済み</option>
-    <option value="作業中">作業中</option>
-    <option value="予定">予定</option>
+    <option value="confirmed">確認済み</option>
+    <option value="estimated">推定OK</option>
+    <option value="check">要確認</option>
   </select>
-  <label>インスト：</label>
-  <select id="filter-inst" onchange="renderTable()">
+  <label>ニコニコ：</label>
+  <select id="filter-nico" onchange="renderTable()">
     <option value="">すべて</option>
-    <option value="未調査">未調査</option>
-    <option value="調査中">調査中</option>
-    <option value="入手済み">入手済み</option>
+    <option value="可">可</option>
+    <option value="可（推定）">可（推定）</option>
+    <option value="要確認">要確認</option>
   </select>
 </div>
 
@@ -82,11 +98,8 @@
       <th>#</th>
       <th>曲名</th>
       <th>アーティスト</th>
-      <th>インスト</th>
       <th>著作権</th>
-      <th>ContentID</th>
       <th>ニコニコ</th>
-      <th>ステータス</th>
       <th>備考</th>
     </tr>
   </thead>
@@ -95,66 +108,70 @@
 
 <script>
 const songs = [
-  { no:1,  title:"カーテンコール",  artist:"優里",              url:"https://www.youtube.com/watch?v=jpiSvrVxceQ", inst:"未調査", copy:"未確認", cid:"未確認", nico:"未確認", status:"投稿済み", note:"" },
-  { no:2,  title:"僕らまた",        artist:"SG",                url:"https://www.youtube.com/watch?v=ZYFkqmtawHo", inst:"未調査", copy:"未確認", cid:"未確認", nico:"未確認", status:"投稿済み", note:"Piano Ver." },
-  { no:3,  title:"彷ぐ",            artist:"とた",              url:"https://www.youtube.com/watch?v=YVgJQSj_yBg", inst:"未調査", copy:"未確認", cid:"未確認", nico:"未確認", status:"投稿済み", note:"実写MV" },
-  { no:4,  title:"らしさ",          artist:"Official髭男dism",  url:"https://www.youtube.com/watch?v=pVqJ_lDcE-A", inst:"未調査", copy:"未確認", cid:"未確認", nico:"未確認", status:"投稿済み", note:"" },
-  { no:5,  title:"夜撫でるメノウ",  artist:"Ayase",             url:"https://www.youtube.com/watch?v=tGF-g3wJ7cA", inst:"未調査", copy:"未確認", cid:"未確認", nico:"未確認", status:"投稿済み", note:"" },
-  { no:6,  title:"プロポーズ",      artist:"なとり",            url:"https://www.youtube.com/watch?v=DR-Xc114ThA", inst:"未調査", copy:"未確認", cid:"未確認", nico:"未確認", status:"投稿済み", note:"" },
-  { no:7,  title:"ヴァンパイア",    artist:"DECO*27",           url:"https://www.youtube.com/watch?v=LwMJbkUabFY", inst:"未調査", copy:"未確認", cid:"未確認", nico:"未確認", status:"投稿済み", note:"" },
-  { no:8,  title:"怪獣の花唄",      artist:"Vaundy",            url:"https://www.youtube.com/watch?v=-ehNEQA7Jrc", inst:"未調査", copy:"未確認", cid:"未確認", nico:"未確認", status:"投稿済み", note:"" },
-  { no:9,  title:"オレンジ",        artist:"SPYAIR",            url:"https://www.youtube.com/watch?v=qqKrdDiHlvw", inst:"未調査", copy:"未確認", cid:"未確認", nico:"未確認", status:"投稿済み", note:"" },
-  { no:10, title:"青のすみか",      artist:"キタニタツヤ",      url:"https://www.youtube.com/watch?v=maFfx1IW-Ok", inst:"未調査", copy:"未確認", cid:"未確認", nico:"未確認", status:"投稿済み", note:"" },
-  { no:11, title:"雨とペトラ",      artist:"バルーン",          url:"https://www.youtube.com/watch?v=CJlsmbJQ9es", inst:"未調査", copy:"未確認", cid:"未確認", nico:"未確認", status:"投稿済み", note:"" },
-  { no:12, title:"ダーリン",        artist:"Mrs. GREEN APPLE",  url:"https://www.youtube.com/watch?v=SbqZoc44NTo", inst:"未調査", copy:"未確認", cid:"未確認", nico:"未確認", status:"投稿済み", note:"実写MV" },
-  { no:13, title:"春を告げる",      artist:"yama",              url:"https://www.youtube.com/watch?v=n_Q4FTglnFA", inst:"未調査", copy:"未確認", cid:"未確認", nico:"未確認", status:"投稿済み", note:"" },
-  { no:14, title:"絶え間なく藍色",  artist:"獅子志司",          url:"https://www.youtube.com/watch?v=3Ll5p6LD3qU", inst:"未調査", copy:"未確認", cid:"未確認", nico:"未確認", status:"投稿済み", note:"" },
-  { no:15, title:"IN_MY_HEAD",      artist:"なとり",            url:"https://www.youtube.com/watch?v=j88L4G0xwuY", inst:"未調査", copy:"未確認", cid:"未確認", nico:"未確認", status:"投稿済み", note:"" },
-  { no:16, title:"ACTOR",           artist:"友成空",            url:"https://www.youtube.com/watch?v=ecQjjKpu5Ok", inst:"未調査", copy:"未確認", cid:"未確認", nico:"未確認", status:"投稿済み", note:"" },
-  { no:17, title:"Bunny Girl",      artist:"AKASAKI",           url:"https://www.youtube.com/watch?v=0KNvBnO9-pY", inst:"未調査", copy:"未確認", cid:"未確認", nico:"未確認", status:"投稿済み", note:"" },
-  { no:18, title:"メロドラマ",      artist:"なとり & imase",    url:"https://www.youtube.com/watch?v=cZDYkJ6zIR8", inst:"未調査", copy:"未確認", cid:"未確認", nico:"未確認", status:"投稿済み", note:"" },
-  { no:19, title:"ツキミソウ",      artist:"Novelbright",       url:"https://www.youtube.com/watch?v=DTQzWm3owUg", inst:"未調査", copy:"未確認", cid:"未確認", nico:"未確認", status:"投稿済み", note:"実写MV" },
-  { no:20, title:"梅酒ロック",      artist:"メガテラ・ゼロ",    url:"https://www.youtube.com/watch?v=bOydSx6EDqQ", inst:"未調査", copy:"未確認", cid:"未確認", nico:"未確認", status:"投稿済み", note:"" },
-  { no:21, title:"寝めっ娘",        artist:"友成空",            url:"https://www.youtube.com/watch?v=YY1_JsGMaTM", inst:"未調査", copy:"未確認", cid:"未確認", nico:"未確認", status:"投稿済み", note:"" },
-  { no:22, title:"ダーリン",        artist:"須田景凪",          url:"https://www.youtube.com/watch?v=lQhe4_dxdLU", inst:"未調査", copy:"未確認", cid:"未確認", nico:"未確認", status:"投稿済み", note:"" },
-  { no:23, title:"バーゲンセール",  artist:"音田雅則",          url:"https://www.youtube.com/watch?v=u4vI3MMmYf4", inst:"未調査", copy:"未確認", cid:"未確認", nico:"未確認", status:"投稿済み", note:"実写MV" },
-  { no:24, title:"笑うな！",        artist:"syudou",            url:"https://www.youtube.com/watch?v=gHjdlxqxD00", inst:"未調査", copy:"未確認", cid:"未確認", nico:"未確認", status:"投稿済み", note:"" },
+  { no:1,  title:"カーテンコール",  artist:"優里",             url:"https://www.youtube.com/watch?v=jpiSvrVxceQ", copy:"JASRAC（推定）",    nico:"可（推定）", mv:false, note:"Sony Music/アリオラジャパン" },
+  { no:2,  title:"僕らまた",        artist:"SG",               url:"https://www.youtube.com/watch?v=ZYFkqmtawHo", copy:"要確認",           nico:"要確認",   mv:false, note:"Piano Ver. / SUPERGENIUS Entertainment" },
+  { no:3,  title:"彷ぐ",            artist:"とた",             url:"https://www.youtube.com/watch?v=YVgJQSj_yBg", copy:"要確認",           nico:"要確認",   mv:true,  note:"インディー" },
+  { no:4,  title:"らしさ",          artist:"Official髭男dism", url:"https://www.youtube.com/watch?v=pVqJ_lDcE-A", copy:"NexTone",          nico:"可",       mv:false, note:"確認済み" },
+  { no:5,  title:"夜撫でるメノウ",  artist:"Ayase",            url:"https://www.youtube.com/watch?v=tGF-g3wJ7cA", copy:"JASRAC",           nico:"可",       mv:false, note:"YOASOBI/JASRAC受賞確認" },
+  { no:6,  title:"プロポーズ",      artist:"なとり",           url:"https://www.youtube.com/watch?v=DR-Xc114ThA", copy:"要確認",           nico:"要確認",   mv:false, note:"インディー" },
+  { no:7,  title:"ヴァンパイア",    artist:"DECO*27",          url:"https://www.youtube.com/watch?v=LwMJbkUabFY", copy:"JASRAC+NexTone",   nico:"可",       mv:false, note:"JASRAC:9013388002 / NexTone:ID000007132" },
+  { no:8,  title:"怪獣の花唄",      artist:"Vaundy",           url:"https://www.youtube.com/watch?v=-ehNEQA7Jrc", copy:"JASRAC（推定）",   nico:"可（推定）", mv:false, note:"Sony Music/アリオラジャパン" },
+  { no:9,  title:"オレンジ",        artist:"SPYAIR",           url:"https://www.youtube.com/watch?v=qqKrdDiHlvw", copy:"JASRAC（推定）",   nico:"可（推定）", mv:false, note:"Sony Music" },
+  { no:10, title:"青のすみか",      artist:"キタニタツヤ",     url:"https://www.youtube.com/watch?v=maFfx1IW-Ok", copy:"JASRAC（推定）",   nico:"可（推定）", mv:false, note:"Sony Music/MASTERSIX FOUNDATION" },
+  { no:11, title:"雨とペトラ",      artist:"バルーン",         url:"https://www.youtube.com/watch?v=CJlsmbJQ9es", copy:"JASRAC+NexTone",   nico:"可",       mv:false, note:"確認済み" },
+  { no:12, title:"ダーリン",        artist:"Mrs. GREEN APPLE", url:"https://www.youtube.com/watch?v=SbqZoc44NTo", copy:"JASRAC（推定）",   nico:"可（推定）", mv:true,  note:"Universal Music/EMI Records" },
+  { no:13, title:"春を告げる",      artist:"yama",             url:"https://www.youtube.com/watch?v=n_Q4FTglnFA", copy:"JASRAC（推定）",   nico:"可（推定）", mv:false, note:"Sony Music/Epic Records" },
+  { no:14, title:"絶え間なく藍色",  artist:"獅子志司",         url:"https://www.youtube.com/watch?v=3Ll5p6LD3qU", copy:"要確認",           nico:"要確認",   mv:false, note:"インディー/ボカロP" },
+  { no:15, title:"IN_MY_HEAD",      artist:"なとり",           url:"https://www.youtube.com/watch?v=j88L4G0xwuY", copy:"要確認",           nico:"要確認",   mv:false, note:"インディー" },
+  { no:16, title:"ACTOR",           artist:"友成空",           url:"https://www.youtube.com/watch?v=ecQjjKpu5Ok", copy:"要確認",           nico:"要確認",   mv:false, note:"インディー" },
+  { no:17, title:"Bunny Girl",      artist:"AKASAKI",          url:"https://www.youtube.com/watch?v=0KNvBnO9-pY", copy:"JASRAC+NexTone",   nico:"可",       mv:false, note:"JASRAC:9014141001 / NexTone:ID000005971" },
+  { no:18, title:"メロドラマ",      artist:"なとり & imase",   url:"https://www.youtube.com/watch?v=cZDYkJ6zIR8", copy:"要確認",           nico:"要確認",   mv:false, note:"インディー系" },
+  { no:19, title:"ツキミソウ",      artist:"Novelbright",      url:"https://www.youtube.com/watch?v=DTQzWm3owUg", copy:"JASRAC（推定）",   nico:"可（推定）", mv:true,  note:"Universal Music" },
+  { no:20, title:"梅酒ロック",      artist:"メガテラ・ゼロ",   url:"https://www.youtube.com/watch?v=bOydSx6EDqQ", copy:"要確認",           nico:"要確認",   mv:false, note:"インディー/ボカロ系" },
+  { no:21, title:"寝めっ娘",        artist:"友成空",           url:"https://www.youtube.com/watch?v=YY1_JsGMaTM", copy:"要確認",           nico:"要確認",   mv:false, note:"インディー" },
+  { no:22, title:"ダーリン",        artist:"須田景凪",         url:"https://www.youtube.com/watch?v=lQhe4_dxdLU", copy:"JASRAC（推定）",   nico:"可（推定）", mv:false, note:"Sony Music系" },
+  { no:23, title:"バーゲンセール",  artist:"音田雅則",         url:"https://www.youtube.com/watch?v=u4vI3MMmYf4", copy:"要確認",           nico:"要確認",   mv:true,  note:"インディー" },
+  { no:24, title:"笑うな！",        artist:"syudou",           url:"https://www.youtube.com/watch?v=gHjdlxqxD00", copy:"JASRAC",           nico:"可",       mv:false, note:"公式規約で確認済み" },
 ];
 
-function badgeClass(val) {
-  if (val === "入手済み" || val === "確認済み" || val === "なし" || val === "可") return "badge-ok";
-  if (val === "調査中" || val === "作業中") return "badge-wip";
-  if (val === "あり" || val === "不可") return "badge-ng";
-  if (val === "投稿済み") return "badge-done";
-  if (val === "予定") return "badge-planned";
-  return "badge-unknown";
+function copyType(copy) {
+  if (copy === "要確認") return "check";
+  if (copy.includes("推定")) return "estimated";
+  return "confirmed";
+}
+
+function nicoBadge(nico) {
+  if (nico === "可") return "badge-ok";
+  if (nico === "可（推定）") return "badge-ok-est";
+  return "badge-ng";
 }
 
 function renderTable() {
-  const statusFilter = document.getElementById("filter-status").value;
-  const instFilter   = document.getElementById("filter-inst").value;
-  const tbody = document.getElementById("song-table-body");
-  const filtered = songs.filter(s =>
-    (!statusFilter || s.status === statusFilter) &&
-    (!instFilter   || s.inst   === instFilter)
-  );
-  tbody.innerHTML = filtered.map(s => `
+  const copyFilter = document.getElementById("filter-copy").value;
+  const nicoFilter = document.getElementById("filter-nico").value;
+
+  const filtered = songs.filter(s => {
+    const ct = copyType(s.copy);
+    if (copyFilter && ct !== copyFilter) return false;
+    if (nicoFilter && s.nico !== nicoFilter) return false;
+    return true;
+  });
+
+  document.getElementById("song-table-body").innerHTML = filtered.map(s => `
     <tr>
       <td class="no">${s.no}</td>
-      <td><a href="${s.url}" target="_blank">${s.title}</a>${s.note && s.note.includes("MV") ? '<span class="mv-tag">実写MV</span>' : ''}</td>
+      <td><a href="${s.url}" target="_blank">${s.title}</a>${s.mv ? '<span class="mv-tag">実写MV</span>' : ''}</td>
       <td>${s.artist}</td>
-      <td><span class="badge ${badgeClass(s.inst)}">${s.inst}</span></td>
-      <td><span class="badge ${badgeClass(s.copy)}">${s.copy}</span></td>
-      <td><span class="badge ${badgeClass(s.cid)}">${s.cid}</span></td>
-      <td><span class="badge ${badgeClass(s.nico)}">${s.nico}</span></td>
-      <td><span class="badge ${badgeClass(s.status)}">${s.status}</span></td>
-      <td style="color:#aaa;font-size:0.8rem">${s.note && !s.note.includes("MV") ? s.note : ''}</td>
+      <td><span class="badge badge-${copyType(s.copy)}">${s.copy}</span></td>
+      <td><span class="badge ${nicoBadge(s.nico)}">${s.nico}</span></td>
+      <td style="color:#888;font-size:0.8rem">${s.note}</td>
     </tr>
   `).join("");
 
-  document.getElementById("total-count").textContent = songs.filter(s => s.status === "投稿済み").length;
-  document.getElementById("inst-done").textContent   = songs.filter(s => s.inst === "入手済み").length;
-  document.getElementById("copy-done").textContent   = songs.filter(s => s.copy === "確認済み").length;
+  document.getElementById("total-count").textContent   = songs.length;
+  document.getElementById("copy-confirmed").textContent = songs.filter(s => copyType(s.copy) === "confirmed").length;
+  document.getElementById("copy-estimated").textContent = songs.filter(s => copyType(s.copy) === "estimated").length;
+  document.getElementById("copy-check").textContent     = songs.filter(s => copyType(s.copy) === "check").length;
 }
 
 renderTable();
