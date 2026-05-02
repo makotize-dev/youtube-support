@@ -1,0 +1,21 @@
+# 音源ファイル（容量が大きいためGit管理外）
+*.wav
+*.mp3
+*.aiff
+*.flac
+
+# 動画ファイル
+*.mp4
+*.mov
+*.avi
+
+# Canva等のローカル素材
+*.psd
+*.ai
+*.png
+*.jpg
+*.jpeg
+
+# OS
+.DS_Store
+Thumbs.db
