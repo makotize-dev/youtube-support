@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>チャンネル運営ダッシュボード</title>
+  <style>
+    body {
+      font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', sans-serif;
+      background: #f5f5f5;
+      color: #333;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 { font-size: 1.4rem; color: #555; margin-bottom: 4px; }
+    .updated { font-size: 0.8rem; color: #999; margin-bottom: 24px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+    .card h2 { font-size: 1rem; margin: 0 0 12px; color: #444; border-bottom: 2px solid #eee; padding-bottom: 8px; }
+    .stat { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f0f0f0; font-size: 0.9rem; }
+    .stat:last-child { border-bottom: none; }
+    .stat .val { font-weight: bold; color: #e05a5a; }
+    .checklist { list-style: none; padding: 0; margin: 0; }
+    .checklist li { padding: 6px 0; font-size: 0.9rem; border-bottom: 1px solid #f0f0f0; }
+    .checklist li:last-child { border-bottom: none; }
+    .done { color: #aaa; text-decoration: line-through; }
+    .done::before { content: "✅ "; }
+    .todo::before { content: "⬜ "; }
+    .note { font-size: 0.85rem; color: #666; line-height: 1.7; }
+    .tag { display: inline-block; background: #eef; color: #559; border-radius: 4px; padding: 2px 8px; font-size: 0.8rem; margin: 2px; }
+  </style>
+</head>
+<body>
+
+<h1>🎤 チャンネル運営ダッシュボード</h1>
+<p class="updated">最終更新：2026年5月2日 ｜ <a href="songs.html" style="color:#559;">🎵 楽曲一覧を見る →</a></p>
+
+<div class="grid">
+
+  <!-- 現在のチャンネル状況 -->
+  <div class="card">
+    <h2>📊 チャンネル状況</h2>
+    <div class="stat"><span>登録者数</span><span class="val">200人</span></div>
+    <div class="stat"><span>総視聴数</span><span class="val">約7万回</span></div>
+    <div class="stat"><span>動画本数（本編）</span><span class="val">24本</span></div>
+    <div class="stat"><span>動画本数（Shorts）</span><span class="val">24本</span></div>
+  </div>
+
+  <!-- 次の投稿 -->
+  <div class="card">
+    <h2>🎵 次の投稿</h2>
+    <p style="font-weight:bold; margin:0 0 12px;">曲名：（未定）</p>
+    <ul class="checklist">
+      <li class="todo">インスト音源の調査・入手</li>
+      <li class="todo">著作権確認</li>
+      <li class="todo">YouTube説明文・タグ作成</li>
+      <li class="todo">サムネイル（友人担当）</li>
+      <li class="todo">YouTube投稿</li>
+      <li class="todo">SNS告知</li>
+    </ul>
+  </div>
+
+  <!-- 安河内からのメモ -->
+  <div class="card">
+    <h2>📝 メモ・連絡事項</h2>
+    <p class="note">
+      プロジェクト開始しました！<br>
+      まずは次の投稿曲を教えてもらえると作業を進められます。
+    </p>
+  </div>
+
+  <!-- 今後の目標 -->
+  <div class="card">
+    <h2>🎯 目標</h2>
+    <ul class="checklist">
+      <li class="todo">YouTube 収益化（登録者1000人・視聴時間4000時間）</li>
+      <li class="todo">Twitch 配信再開</li>
+      <li class="todo">ココナラ MIX出品</li>
+    </ul>
+  </div>
+
+</div>
+</body>
+</html>

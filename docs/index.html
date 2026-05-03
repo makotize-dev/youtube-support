@@ -1,89 +1,317 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>チャンネル運営ダッシュボード</title>
-  <style>
-    body {
-      font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', sans-serif;
-      background: #f5f5f5;
-      color: #333;
-      margin: 0;
-      padding: 20px;
-    }
-    h1 { font-size: 1.4rem; color: #555; margin-bottom: 4px; }
-    .updated { font-size: 0.8rem; color: #999; margin-bottom: 24px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
-    .card {
-      background: #fff;
-      border-radius: 10px;
-      padding: 20px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-    }
-    .card h2 { font-size: 1rem; margin: 0 0 12px; color: #444; border-bottom: 2px solid #eee; padding-bottom: 8px; }
-    .stat { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f0f0f0; font-size: 0.9rem; }
-    .stat:last-child { border-bottom: none; }
-    .stat .val { font-weight: bold; color: #e05a5a; }
-    .checklist { list-style: none; padding: 0; margin: 0; }
-    .checklist li { padding: 6px 0; font-size: 0.9rem; border-bottom: 1px solid #f0f0f0; }
-    .checklist li:last-child { border-bottom: none; }
-    .done { color: #aaa; text-decoration: line-through; }
-    .done::before { content: "✅ "; }
-    .todo::before { content: "⬜ "; }
-    .note { font-size: 0.85rem; color: #666; line-height: 1.7; }
-    .tag { display: inline-block; background: #eef; color: #559; border-radius: 4px; padding: 2px 8px; font-size: 0.8rem; margin: 2px; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>hi-to0 チャンネル運営状況</title>
+<style>
+  /* ========== 配色（変更したい場合はこの :root だけ書き換えればOK） ========== */
+  :root {
+    --bg:           #fdf6f0;   /* 全体背景：温かいクリーム */
+    --card-bg:      #ffffff;
+    --text:         #3d2b1f;   /* 本文：焦げ茶 */
+    --text-muted:   #8a6f5d;
+    --primary:      #d9633b;   /* 主アクセント：テラコッタ */
+    --primary-soft: #f5e0d3;
+    --secondary:    #e89548;   /* 副アクセント：オレンジ */
+    --border:       #ecdcc8;
+
+    /* 状態バッジ */
+    --go:           #8fa632;   /* マスタード寄りオリーブグリーン（GO） */
+    --ng:           #c94c3c;   /* レッド（NG） */
+    --hold:         #999999;   /* グレー（保留） */
+    --pending:      #f3c969;   /* アンバー（未確認・空欄） */
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    margin: 0;
+    padding: 24px 16px 64px;
+    line-height: 1.6;
+  }
+  .container { max-width: 960px; margin: 0 auto; }
+
+  header { margin-bottom: 28px; border-bottom: 3px solid var(--primary); padding-bottom: 12px; }
+  header h1 { font-size: 1.5rem; margin: 0 0 4px; color: var(--primary); }
+  header .meta { font-size: 0.85rem; color: var(--text-muted); }
+
+  section { margin-bottom: 36px; }
+  section h2 {
+    font-size: 1.1rem;
+    margin: 0 0 14px;
+    color: var(--primary);
+    border-left: 5px solid var(--secondary);
+    padding-left: 10px;
+  }
+  .empty {
+    background: var(--primary-soft);
+    color: var(--text-muted);
+    padding: 16px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 0.9rem;
+  }
+
+  /* ===== 候補曲カード ===== */
+  .candidate-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    box-shadow: 0 1px 3px rgba(120,80,40,0.06);
+  }
+  .card .title { font-size: 1.05rem; font-weight: bold; margin-bottom: 2px; }
+  .card .artist { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px; }
+  .card .row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 6px 0; font-size: 0.85rem; }
+  .card .row .label { color: var(--text-muted); margin-right: 4px; }
+  .card .note { font-size: 0.8rem; color: var(--text-muted); margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border); }
+  .card a { color: var(--primary); text-decoration: none; }
+  .card a:hover { text-decoration: underline; }
+
+  /* ===== バッジ ===== */
+  .badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: #fff;
+    line-height: 1.5;
+  }
+  .badge-go      { background: var(--go); }
+  .badge-ng      { background: var(--ng); }
+  .badge-hold    { background: var(--hold); }
+  .badge-pending { background: var(--pending); color: #5a4520; }
+  .badge-status  { background: var(--secondary); }
+  .badge-outline {
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    font-weight: normal;
+  }
+
+  /* ===== 投稿済みリスト ===== */
+  .posted-list { list-style: none; padding: 0; margin: 0; }
+  .posted-list li {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+  }
+  .posted-list .no { color: var(--text-muted); font-size: 0.8rem; min-width: 28px; }
+  .posted-list .title { font-weight: bold; }
+  .posted-list .artist { color: var(--text-muted); font-size: 0.85rem; }
+  .posted-list a { color: var(--primary); text-decoration: none; margin-left: auto; font-size: 0.85rem; }
+  .posted-list a:hover { text-decoration: underline; }
+
+  .show-more {
+    display: block;
+    margin: 10px auto 0;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+  .show-more:hover { background: var(--secondary); }
+
+  .error {
+    background: #fde7e3;
+    color: #8b2c1c;
+    padding: 16px;
+    border-radius: 8px;
+  }
+</style>
 </head>
 <body>
+<div class="container">
 
-<h1>🎤 チャンネル運営ダッシュボード</h1>
-<p class="updated">最終更新：2026年5月2日 ｜ <a href="songs.html" style="color:#559;">🎵 楽曲一覧を見る →</a></p>
-
-<div class="grid">
-
-  <!-- 現在のチャンネル状況 -->
-  <div class="card">
-    <h2>📊 チャンネル状況</h2>
-    <div class="stat"><span>登録者数</span><span class="val">200人</span></div>
-    <div class="stat"><span>総視聴数</span><span class="val">約7万回</span></div>
-    <div class="stat"><span>動画本数（本編）</span><span class="val">24本</span></div>
-    <div class="stat"><span>動画本数（Shorts）</span><span class="val">24本</span></div>
+<header>
+  <h1>🎤 hi-to0 チャンネル運営状況</h1>
+  <div class="meta">
+    最終更新: <span id="last-updated">—</span> ／
+    候補曲 <span id="count-candidate">0</span>件 ／
+    投稿済み <span id="count-posted">0</span>本
   </div>
+</header>
 
-  <!-- 次の投稿 -->
-  <div class="card">
-    <h2>🎵 次の投稿</h2>
-    <p style="font-weight:bold; margin:0 0 12px;">曲名：（未定）</p>
-    <ul class="checklist">
-      <li class="todo">インスト音源の調査・入手</li>
-      <li class="todo">著作権確認</li>
-      <li class="todo">YouTube説明文・タグ作成</li>
-      <li class="todo">サムネイル（友人担当）</li>
-      <li class="todo">YouTube投稿</li>
-      <li class="todo">SNS告知</li>
-    </ul>
-  </div>
+<section id="section-candidates">
+  <h2>📋 候補曲・進行中</h2>
+  <div id="candidates" class="candidate-grid"></div>
+</section>
 
-  <!-- 安河内からのメモ -->
-  <div class="card">
-    <h2>📝 メモ・連絡事項</h2>
-    <p class="note">
-      プロジェクト開始しました！<br>
-      まずは次の投稿曲を教えてもらえると作業を進められます。
-    </p>
-  </div>
-
-  <!-- 今後の目標 -->
-  <div class="card">
-    <h2>🎯 目標</h2>
-    <ul class="checklist">
-      <li class="todo">YouTube 収益化（登録者1000人・視聴時間4000時間）</li>
-      <li class="todo">Twitch 配信再開</li>
-      <li class="todo">ココナラ MIX出品</li>
-    </ul>
-  </div>
+<section id="section-posted">
+  <h2>✅ 投稿済み</h2>
+  <ul id="posted" class="posted-list"></ul>
+  <button id="show-more-btn" class="show-more" style="display:none;">もっと見る</button>
+</section>
 
 </div>
+
+<script>
+// ===== CSV 取得・パース =====
+const CSV_URL = '../songs.csv';
+const POSTED_INITIAL = 5;
+let postedExpanded = false;
+
+async function load() {
+  try {
+    const res = await fetch(CSV_URL, { cache: 'no-cache' });
+    if (!res.ok) throw new Error('CSV取得失敗: ' + res.status);
+    const text = await res.text();
+    const rows = parseCSV(text);
+    render(rows);
+  } catch (e) {
+    document.getElementById('candidates').innerHTML =
+      '<div class="error">CSVを読み込めませんでした: ' + escapeHTML(e.message) + '</div>';
+    console.error(e);
+  }
+}
+
+function parseCSV(text) {
+  // BOM除去
+  if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+  const lines = text.split(/\r?\n/).filter(l => l.length > 0);
+  if (lines.length < 2) return [];
+  const headers = parseLine(lines[0]);
+  return lines.slice(1).map(line => {
+    const cells = parseLine(line);
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = (cells[i] || '').trim());
+    return obj;
+  });
+}
+
+function parseLine(line) {
+  const result = [];
+  let current = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (c === '"') {
+      if (inQuotes && line[i+1] === '"') { current += '"'; i++; }
+      else { inQuotes = !inQuotes; }
+    } else if (c === ',' && !inQuotes) {
+      result.push(current); current = '';
+    } else { current += c; }
+  }
+  result.push(current);
+  return result;
+}
+
+function escapeHTML(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+
+// ===== 描画 =====
+function render(rows) {
+  const candidates = rows.filter(r => r['ステータス'] !== '投稿済み');
+  const posted = rows.filter(r => r['ステータス'] === '投稿済み')
+                     .sort((a, b) => Number(b['No']) - Number(a['No']));
+
+  document.getElementById('count-candidate').textContent = candidates.length;
+  document.getElementById('count-posted').textContent = posted.length;
+  document.getElementById('last-updated').textContent = computeLastUpdated(rows);
+
+  renderCandidates(candidates);
+  renderPosted(posted);
+}
+
+function computeLastUpdated(rows) {
+  const dateCols = ['候補日','投稿日','自動判定日','最終判定日'];
+  const dates = [];
+  rows.forEach(r => dateCols.forEach(c => {
+    const v = r[c];
+    if (v && /^\d{4}-\d{2}-\d{2}/.test(v)) dates.push(v);
+  }));
+  if (dates.length === 0) return '—';
+  return dates.sort().pop();
+}
+
+function renderCandidates(items) {
+  const root = document.getElementById('candidates');
+  if (items.length === 0) {
+    root.innerHTML = '<div class="empty">現在進行中の候補曲はありません</div>';
+    return;
+  }
+  root.innerHTML = items.map(c => `
+    <div class="card">
+      <div class="title">${escapeHTML(c['曲名'])}</div>
+      <div class="artist">${escapeHTML(c['アーティスト'])}</div>
+      <div class="row">
+        <span class="badge badge-status">${escapeHTML(c['ステータス'] || '—')}</span>
+        ${verdictBadge('自動判定', c['自動判定'])}
+        ${verdictBadge('最終判定', c['最終判定'])}
+      </div>
+      <div class="row">
+        <span class="label">管理団体:</span>${escapeHTML(c['管理団体'] || '—')}
+        <span class="label" style="margin-left:8px;">YouTube:</span>${escapeHTML(c['YouTube可否'] || '—')}
+      </div>
+      <div class="row">
+        <span class="label">インスト:</span>
+        ${c['インスト_DriveURL']
+          ? `<a href="${escapeHTML(c['インスト_DriveURL'])}" target="_blank" rel="noopener">Driveで開く</a>`
+          : escapeHTML(c['インスト状況'] || '—')}
+      </div>
+      ${c['備考'] ? `<div class="note">${escapeHTML(c['備考'])}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+function verdictBadge(label, value) {
+  const v = (value || '').trim();
+  let cls = 'badge-pending', txt = '未';
+  if (v === 'GO')   { cls = 'badge-go';   txt = 'GO'; }
+  else if (v === 'NG')   { cls = 'badge-ng';   txt = 'NG'; }
+  else if (v === '保留') { cls = 'badge-hold'; txt = '保留'; }
+  return `<span class="badge ${cls}" title="${escapeHTML(label)}">${escapeHTML(label)}: ${txt}</span>`;
+}
+
+function renderPosted(items) {
+  const root = document.getElementById('posted');
+  const btn = document.getElementById('show-more-btn');
+  const visible = postedExpanded ? items : items.slice(0, POSTED_INITIAL);
+
+  root.innerHTML = visible.map(p => {
+    const unverified = p['データ確認状況'] === '未確認';
+    return `
+      <li>
+        <span class="no">#${escapeHTML(p['No'])}</span>
+        <span class="title">${escapeHTML(p['曲名'])}</span>
+        <span class="artist">${escapeHTML(p['アーティスト'])}</span>
+        ${unverified ? '<span class="badge badge-pending" title="著作権データ未確認">著作権未確認</span>' : ''}
+        ${p['YouTube_URL'] ? `<a href="${escapeHTML(p['YouTube_URL'])}" target="_blank" rel="noopener">YouTube ▶</a>` : ''}
+      </li>
+    `;
+  }).join('');
+
+  if (items.length > POSTED_INITIAL) {
+    btn.style.display = 'block';
+    btn.textContent = postedExpanded ? '少なく表示' : `もっと見る（残り${items.length - POSTED_INITIAL}本）`;
+    btn.onclick = () => {
+      postedExpanded = !postedExpanded;
+      renderPosted(items);
+    };
+  } else {
+    btn.style.display = 'none';
+  }
+}
+
+load();
+</script>
 </body>
 </html>
