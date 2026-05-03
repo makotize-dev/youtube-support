@@ -236,7 +236,7 @@ YouTube に投稿後、原盤権者が Content ID で広告収益を取る可能
 
 ```bash
 cd /c/dev/youtube-support
-git add songs.csv
+git add docs/songs.csv
 git commit -m "候補曲〇〇〇〇の判定追加"
 git push
 ```
@@ -286,9 +286,9 @@ https://makotize-dev.github.io/youtube-support/
 ## 6. 関連ドキュメント
 
 - [copyright-guide.md](./copyright-guide.md) — 著作権確認の参考リンクと考え方
-- `../songs.csv` — 全曲の状態管理（このSOPで更新する対象）
-- `../candidates/_template.md` — 詳細な調査メモが必要な曲用のテンプレート
-- `../README.md` — リポジトリ全体の入り口
+- [songs.csv](./songs.csv) — 全曲の状態管理（このSOPで更新する対象）
+- [../candidates/_template.md](../candidates/_template.md) — 詳細な調査メモが必要な曲用のテンプレート
+- [../README.md](../README.md) — リポジトリ全体の入り口
 
 ---
 

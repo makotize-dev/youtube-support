@@ -13,7 +13,7 @@
 
 **https://makotize-dev.github.io/youtube-support/**
 
-ブックマーク推奨。`songs.csv` の更新が push されると自動で反映される。
+ブックマーク推奨。`docs/songs.csv` の更新が push されると自動で反映される。
 
 ---
 
@@ -33,7 +33,7 @@
 
 | パス | 内容 |
 |---|---|
-| `songs.csv` | 全曲の状態管理（候補・進行中・投稿済みを一元） |
+| `docs/songs.csv` | 全曲の状態管理（候補・進行中・投稿済みを一元） |
 | `docs/index.html` | 友人向け状況確認画面（GitHub Pages から配信） |
 | `docs/workflow.md` | 作業手順書（SOP） |
 | `docs/copyright-guide.md` | 著作権確認の参考資料 |
@@ -48,7 +48,7 @@
 ## 作業の入口
 
 1. LINE で友人から候補曲を受信
-2. [docs/workflow.md](./docs/workflow.md) のステップに沿って `songs.csv` を更新
+2. [docs/workflow.md](./docs/workflow.md) のステップに沿って `docs/songs.csv` を更新
 3. 必要に応じて `candidates/<曲名>.md` を作成
 4. インストを Google Drive にアップ
 5. `git push` → 友人に画面 URL を通知
