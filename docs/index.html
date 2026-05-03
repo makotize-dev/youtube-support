@@ -111,6 +111,7 @@
   .posted-list .no { color: var(--text-muted); font-size: 0.8rem; min-width: 28px; }
   .posted-list .title { font-weight: bold; }
   .posted-list .artist { color: var(--text-muted); font-size: 0.85rem; }
+  .posted-list .date { color: var(--text-muted); font-size: 0.8rem; font-family: monospace; }
   .posted-list a { color: var(--primary); text-decoration: none; margin-left: auto; font-size: 0.85rem; }
   .posted-list a:hover { text-decoration: underline; }
 
@@ -221,7 +222,15 @@ function escapeHTML(s) {
 function render(rows) {
   const candidates = rows.filter(r => r['ステータス'] !== '投稿済み');
   const posted = rows.filter(r => r['ステータス'] === '投稿済み')
-                     .sort((a, b) => Number(b['No']) - Number(a['No']));
+                     .sort((a, b) => {
+                       // 投稿日の降順（新しい順）。日付が無い行は末尾に。
+                       const da = a['投稿日'] || '';
+                       const db = b['投稿日'] || '';
+                       if (!da && !db) return 0;
+                       if (!da) return 1;
+                       if (!db) return -1;
+                       return db.localeCompare(da);
+                     });
 
   document.getElementById('count-candidate').textContent = candidates.length;
   document.getElementById('count-posted').textContent = posted.length;
@@ -293,6 +302,7 @@ function renderPosted(items) {
         <span class="no">#${escapeHTML(p['No'])}</span>
         <span class="title">${escapeHTML(p['曲名'])}</span>
         <span class="artist">${escapeHTML(p['アーティスト'])}</span>
+        ${p['投稿日'] ? `<span class="date">${escapeHTML(p['投稿日'])}</span>` : ''}
         ${unverified ? '<span class="badge badge-pending" title="著作権データ未確認">著作権未確認</span>' : ''}
         ${p['YouTube_URL'] ? `<a href="${escapeHTML(p['YouTube_URL'])}" target="_blank" rel="noopener">YouTube ▶</a>` : ''}
       </li>
