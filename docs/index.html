@@ -68,6 +68,8 @@
   .card .artist { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px; }
   .card .row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 6px 0; font-size: 0.85rem; }
   .card .row .label { color: var(--text-muted); margin-right: 4px; }
+  .card .platform-row { font-size: 0.8rem; gap: 12px; }
+  .card .platform-row b { font-weight: 600; }
   .card .note { font-size: 0.8rem; color: var(--text-muted); margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border); }
   .card a { color: var(--primary); text-decoration: none; }
   .card a:hover { text-decoration: underline; }
@@ -112,8 +114,11 @@
   .posted-list .title { font-weight: bold; }
   .posted-list .artist { color: var(--text-muted); font-size: 0.85rem; }
   .posted-list .date { color: var(--text-muted); font-size: 0.8rem; font-family: monospace; }
-  .posted-list a { color: var(--primary); text-decoration: none; margin-left: auto; font-size: 0.85rem; }
+  .posted-list a { text-decoration: none; }
   .posted-list a:hover { text-decoration: underline; }
+  .posted-list .links { margin-left: auto; display: flex; gap: 10px; align-items: baseline; }
+  .posted-list .link-primary { color: var(--primary); font-size: 0.85rem; font-weight: bold; }
+  .posted-list .link-sub { color: var(--text-muted); font-size: 0.75rem; }
 
   .show-more {
     display: block;
@@ -268,7 +273,12 @@ function renderCandidates(items) {
       </div>
       <div class="row">
         <span class="label">管理団体:</span>${escapeHTML(c['管理団体'] || '—')}
-        <span class="label" style="margin-left:8px;">YouTube:</span>${escapeHTML(c['YouTube可否'] || '—')}
+      </div>
+      <div class="row platform-row">
+        <span class="label">可否:</span>
+        <span>YT <b>${escapeHTML(c['YouTube可否'] || '—')}</b></span>
+        <span>TT <b>${escapeHTML(c['TikTok可否'] || '—')}</b></span>
+        <span>X <b>${escapeHTML(c['X可否'] || '—')}</b></span>
       </div>
       <div class="row">
         <span class="label">インスト:</span>
@@ -304,7 +314,11 @@ function renderPosted(items) {
         <span class="artist">${escapeHTML(p['アーティスト'])}</span>
         ${p['投稿日'] ? `<span class="date">${escapeHTML(p['投稿日'])}</span>` : ''}
         ${unverified ? '<span class="badge badge-pending" title="著作権データ未確認">著作権未確認</span>' : ''}
-        ${p['YouTube_URL'] ? `<a href="${escapeHTML(p['YouTube_URL'])}" target="_blank" rel="noopener">YouTube ▶</a>` : ''}
+        <span class="links">
+          ${p['YouTube_URL'] ? `<a class="link-primary" href="${escapeHTML(p['YouTube_URL'])}" target="_blank" rel="noopener">YouTube ▶</a>` : ''}
+          ${p['TikTok_URL'] ? `<a class="link-sub" href="${escapeHTML(p['TikTok_URL'])}" target="_blank" rel="noopener">TikTok</a>` : ''}
+          ${p['X_URL'] ? `<a class="link-sub" href="${escapeHTML(p['X_URL'])}" target="_blank" rel="noopener">X</a>` : ''}
+        </span>
       </li>
     `;
   }).join('');
