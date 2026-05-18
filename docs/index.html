@@ -170,6 +170,8 @@
 // ===== CSV 取得・パース =====
 const CSV_URL = './songs.csv';
 const POSTED_INITIAL = 5;
+// 詳細メモ（candidates/）は GitHub Pages の配信外なので GitHub 上のページにリンクする
+const REPO_BASE = 'https://github.com/makotize-dev/youtube-support/blob/main';
 let postedExpanded = false;
 
 async function load() {
@@ -221,6 +223,20 @@ function escapeHTML(s) {
   return String(s).replace(/[&<>"']/g, c => ({
     '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
   }[c]));
+}
+
+// 備考テキストを表示用HTMLに変換する。
+// ・通常のURL（https://...）をリンク化
+// ・candidates/◯◯.md の参照を GitHub 上のメモへのリンク化
+function renderNote(text) {
+  let html = escapeHTML(text);
+  // 1. 通常のURLをリンク化
+  html = html.replace(/(https?:\/\/[^\s<]+)/g, url =>
+    `<a href="${url}" target="_blank" rel="noopener">${url}</a>`);
+  // 2. candidates/◯◯.md をリンク化（URLの一部として既に出た一致は除外）
+  html = html.replace(/(?<!\/)candidates\/([^\s/<]+\.md)/g, (m, file) =>
+    `<a href="${REPO_BASE}/candidates/${encodeURIComponent(file)}" target="_blank" rel="noopener">${m}</a>`);
+  return html;
 }
 
 // ===== 描画 =====
@@ -286,7 +302,7 @@ function renderCandidates(items) {
           ? `<a href="${escapeHTML(c['インスト_DriveURL'])}" target="_blank" rel="noopener">Driveで開く</a>`
           : escapeHTML(c['インスト状況'] || '—')}
       </div>
-      ${c['備考'] ? `<div class="note">${escapeHTML(c['備考'])}</div>` : ''}
+      ${c['備考'] ? `<div class="note">${renderNote(c['備考'])}</div>` : ''}
     </div>
   `).join('');
 }
